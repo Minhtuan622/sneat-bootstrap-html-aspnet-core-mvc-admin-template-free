@@ -14,6 +14,12 @@
       <!-- Register -->
       <div class="card px-sm-6 px-0">
         <div class="card-body">
+          @if(ViewBag.Error != null)
+          {
+            <div class="alert alert-danger">
+              @ViewBag.Error
+            </div>
+          }
           <!-- Logo -->
           <div class="app-brand justify-content-center">
             <a href="/" class="app-brand-link gap-2">
@@ -25,22 +31,24 @@
           <h4 class="mb-1">Welcome to @TempData.Peek("appName")! 👋</h4>
           <p class="mb-6">Please sign-in to your account and start the adventure</p>
 
-          <form id="formAuthentication" class="mb-6" action="/" method="POST">
+          <form id="formAuthentication" class="mb-6" asp-controller="Auth" asp-action="LoginBasic" method="POST">
             <div class="mb-6">
-              <label for="email" class="form-label">Email or Username</label>
-              <input type="text" class="form-control" id="email" name="email-username" placeholder="Enter your email or username" autofocus />
+              <label for="username" class="form-label">Username</label>
+              <input type="text" class="form-control" id="username" name="username" placeholder="Enter your username" autofocus/>
             </div>
             <div class="mb-6 form-password-toggle">
               <label class="form-label" for="password">Password</label>
               <div class="input-group input-group-merge">
-                <input type="password" id="password" class="form-control" name="password" placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;" aria-describedby="password" />
+                <input type="password" id="password" class="form-control" name="password"
+                       placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
+                       aria-describedby="password"/>
                 <span class="input-group-text cursor-pointer"><i class="icon-base bx bx-hide"></i></span>
               </div>
             </div>
             <div class="mb-8">
               <div class="d-flex justify-content-between">
                 <div class="form-check mb-0">
-                  <input class="form-check-input" type="checkbox" id="remember-me" />
+                  <input class="form-check-input" type="checkbox" id="remember-me"/>
                   <label class="form-check-label" for="remember-me"> Remember Me </label>
                 </div>
                 <a href="/Auth/ForgotPasswordBasic">

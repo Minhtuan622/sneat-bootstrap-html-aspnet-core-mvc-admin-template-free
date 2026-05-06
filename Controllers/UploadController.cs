@@ -1,8 +1,10 @@
 ﻿using AspnetCoreMvcFull.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AspnetCoreMvcFull.Controllers
 {
+  [Authorize]
   public class UploadController(ExcelImportService excel) : Controller
   {
     public IActionResult Orders()
@@ -21,9 +23,9 @@ namespace AspnetCoreMvcFull.Controllers
         return View();
       }
 
-      await excel.ImportOrders(file);
+      var result = await excel.ImportOrders(file);
 
-      ViewBag.Success = "Import thành công";
+      ViewBag.Result = result;
 
       return View();
     }

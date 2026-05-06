@@ -2,8 +2,11 @@ using System.Text;
 using AspnetCoreMvcFull.Repositories;
 using AspnetCoreMvcFull.Services;
 using AspnetCoreMvcFull.Workers;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
+
+Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
 
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
@@ -16,6 +19,8 @@ builder.Services.AddScoped<LiveAdRepository>();
 builder.Services.AddScoped<ReportLogRepository>();
 builder.Services.AddScoped<LiveMetricSnapshotRepository>();
 builder.Services.AddScoped<OrdersRepository>();
+builder.Services.AddScoped<AuditRepository>();
+builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<FacebookAdsService>();
 builder.Services.AddScoped<ReportBuilderService>();
 builder.Services.AddScoped<ExcelImportService>();
@@ -24,14 +29,21 @@ builder.Services.AddHttpClient<LarkService>();
 builder.Services.AddHostedService<ReportWorker>();
 
 Console.OutputEncoding = Encoding.UTF8;
+builder.Services
+  .AddAuthentication(
+    CookieAuthenticationDefaults
+      .AuthenticationScheme
+  )
+  .AddCookie(options => { options.LoginPath = "/Auth/LoginBasic"; });
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+  app.UseExceptionHandler("/Home/Error");
+  // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+  app.UseHsts();
 }
 
 app.UseHttpsRedirection();
@@ -39,10 +51,11 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Dashboards}/{action=Index}/{id?}");
+  name: "default",
+  pattern: "{controller=Dashboards}/{action=Index}/{id?}");
 
 app.Run();

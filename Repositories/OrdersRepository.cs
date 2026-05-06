@@ -14,7 +14,8 @@ namespace AspnetCoreMvcFull.Repositories
       string pageId,
       string postId,
       string adId,
-      decimal revenue)
+      decimal revenue,
+      DateTime createdAt)
     {
       await using var conn = GetConnection();
 
@@ -22,17 +23,19 @@ namespace AspnetCoreMvcFull.Repositories
         """
         INSERT INTO orders
         (
-            page_id,
-            post_id,
-            ad_id,
-            revenue
+          page_id,
+          post_id,
+          ad_id,
+          revenue,
+          created_at
         )
         VALUES
         (
-            @pageId,
-            @postId,
-            @adId,
-            @revenue
+          @pageId,
+          @postId,
+          @adId,
+          @revenue,
+          @createdAt
         )
         """,
         new
@@ -40,9 +43,36 @@ namespace AspnetCoreMvcFull.Repositories
           pageId,
           postId,
           adId,
-          revenue
+          revenue,
+          createdAt
         }
       );
+    }
+
+    public async Task<bool> Exists(
+      string postId,
+      string adId,
+      DateTime createdAt)
+    {
+      await using var conn = GetConnection();
+
+      var count = await conn.ExecuteScalarAsync<int>(
+        """
+        SELECT COUNT(*)
+        FROM orders
+        WHERE post_id = @postId
+        AND ad_id = @adId
+        AND created_at = @createdAt
+        """,
+        new
+        {
+          postId,
+          adId,
+          createdAt
+        }
+      );
+
+      return count > 0;
     }
   }
 }

@@ -60,3 +60,58 @@
     </form>
   </div>
 </div>
+
+@if (ViewBag.Result != null)
+{
+  var result = (ImportResult)ViewBag.Result;
+
+  <div class="card mt-4">
+    <div class="card-header">
+      <h5 class="mb-0">Import Result</h5>
+    </div>
+
+    <div class="card-body">
+
+      <div class="alert alert-success mb-4">
+        <div class="d-flex align-items-center mb-2">
+          <i class="bx bx-check-circle fs-4 me-2"></i>
+          <strong>Import completed successfully</strong>
+        </div>
+
+        <div class="row mt-3">
+          <div class="col-md-6 mb-2">
+            <div class="border rounded p-3">
+              <small class="text-muted d-block">Success Count</small>
+              <h4 class="mb-0 text-success">@result.SuccessCount</h4>
+            </div>
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <div class="border rounded p-3">
+              <small class="text-muted d-block">Failed Count</small>
+              <h4 class="mb-0 text-danger">@result.FailedCount</h4>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      @if (result.Errors.Any())
+      {
+        <div class="alert alert-danger mb-0">
+          <div class="d-flex align-items-center mb-3">
+            <i class="bx bx-error-circle fs-4 me-2"></i>
+            <strong>Error Details</strong>
+          </div>
+
+          <ul class="mb-0 ps-3">
+            @foreach (var error in result.Errors)
+            {
+              <li class="mb-1">@error</li>
+            }
+          </ul>
+        </div>
+      }
+
+    </div>
+  </div>
+}

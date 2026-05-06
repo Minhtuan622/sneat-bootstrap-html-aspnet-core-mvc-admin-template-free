@@ -1,12 +1,15 @@
 using AspnetCoreMvcFull.Models;
 using AspnetCoreMvcFull.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AspnetCoreMvcFull.Controllers
 {
+  [Authorize]
   public class LiveConfigsController(
     LiveConfigRepository repo,
-    LiveAdRepository liveAdRepo
+    LiveAdRepository liveAdRepo,
+    AuditRepository auditRepo
   ) : Controller
   {
     public async Task<IActionResult> Index()
@@ -24,7 +27,16 @@ namespace AspnetCoreMvcFull.Controllers
     [HttpPost]
     public async Task<IActionResult> Create(LiveConfig model)
     {
-      await repo.Create(model);
+      var id = await repo.Create(model);
+
+      await auditRepo.Create(
+        "CREATE",
+        "live_configs",
+        id,
+        null,
+        model,
+        User.Identity?.Name
+      );
 
       return RedirectToAction(nameof(Index));
     }

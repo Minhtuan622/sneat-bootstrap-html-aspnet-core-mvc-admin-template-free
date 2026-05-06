@@ -37,11 +37,11 @@ namespace AspnetCoreMvcFull.Repositories
       );
     }
 
-    public async Task Create(LiveConfig model)
+    public async Task<long> Create(LiveConfig model)
     {
       await using var conn = GetConnection();
 
-      await conn.ExecuteAsync(
+      return await conn.ExecuteAsync(
         """
         INSERT INTO live_configs
         (
@@ -60,6 +60,7 @@ namespace AspnetCoreMvcFull.Repositories
             is_active,
             is_reporting
         )
+        OUTPUT INSERTED.id
         VALUES
         (
             @ProjectName,

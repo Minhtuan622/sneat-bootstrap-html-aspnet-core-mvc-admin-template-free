@@ -1,8 +1,10 @@
 using AspnetCoreMvcFull.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AspnetCoreMvcFull.Controllers;
 
+[Authorize]
 public class DashboardsController(LiveMetricsRepository repo) : Controller
 {
   public IActionResult Index() => View();
