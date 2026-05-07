@@ -5,7 +5,7 @@ using OfficeOpenXml;
 
 namespace AspnetCoreMvcFull.Services
 {
-  public class ExcelImportService(OrdersRepository repo)
+  public class ExcelImportService(OrdersRepository repo, ErrorLogService errorLogService)
   {
     public async Task<ImportResult> ImportOrders(IFormFile file)
     {
@@ -48,6 +48,7 @@ namespace AspnetCoreMvcFull.Services
         {
           result.FailedCount++;
           result.Errors.Add($"Row {row}: {ex.Message}");
+          await errorLogService.Log(ex, "ExcelImportService.ImportOrders");
         }
       }
       return result;

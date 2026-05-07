@@ -1,0 +1,7 @@
+CREATE TABLE error_logs (
+  id BIGINT IDENTITY PRIMARY KEY,
+  message NVARCHAR(MAX) NOT NULL,
+  stack_trace NVARCHAR(MAX) NULL,
+  source NVARCHAR(255) NOT NULL,
+  created_at DATETIME2 DEFAULT GETDATE()
+);

@@ -1,0 +1,4 @@
+@model IEnumerable<AspnetCoreMvcFull.Models.ErrorLog>
+<div class="card"><div class="card-header"><h5>Error Logs</h5></div><div class="table-responsive"><table class="table"><thead><tr><th>Time</th><th>Source</th><th>Message</th></tr></thead><tbody>
+@foreach(var x in Model){<tr><td>@x.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td><td>@x.Source</td><td>@x.Message</td></tr>}
+</tbody></table></div></div>

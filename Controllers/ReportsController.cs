@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace AspnetCoreMvcFull.Controllers
 {
   [Authorize]
-  public class ReportsController(ReportLogRepository repo, ReportDispatchService dispatcher) : Controller
+  public class ReportsController(ReportLogRepository repo, ReportService reportService) : Controller
   {
     public async Task<IActionResult> Logs()
     {
@@ -18,7 +18,7 @@ namespace AspnetCoreMvcFull.Controllers
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> SendNow()
     {
-      var sent = await dispatcher.DispatchChangedReports();
+      var sent = await reportService.SendAllReports();
       TempData["Success"] = $"Đã gửi {sent} báo cáo.";
       return RedirectToAction(nameof(Logs));
     }
