@@ -15,4 +15,6 @@ public class User
   public bool IsActive { get; set; }
 
   public DateTime CreatedAt { get; set; }
+
+  public string? AvatarPath { get; set; }
 }

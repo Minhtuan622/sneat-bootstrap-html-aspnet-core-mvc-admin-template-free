@@ -1,0 +1,28 @@
+@model IEnumerable<AspnetCoreMvcFull.Models.SystemSetting>
+
+<div class="card">
+  <h5 class="card-header">System Settings</h5>
+  <div class="card-body">
+    @if (TempData["Success"] != null) { <div class="alert alert-success">@TempData["Success"]</div> }
+    <table class="table">
+      <thead><tr><th>Key</th><th>Value</th><th></th></tr></thead>
+      <tbody>
+      @foreach (var item in Model)
+      {
+        <tr>
+          <td>@item.Key</td>
+          <td>
+            <form asp-action="Save" method="post" class="d-flex gap-2">
+              @Html.AntiForgeryToken()
+              <input type="hidden" name="key" value="@item.Key" />
+              <input name="value" value="@item.Value" class="form-control" />
+              <button class="btn btn-primary">Lưu</button>
+            </form>
+          </td>
+          <td></td>
+        </tr>
+      }
+      </tbody>
+    </table>
+  </div>
+</div>

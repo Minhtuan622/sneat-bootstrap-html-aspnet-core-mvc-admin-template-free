@@ -1,0 +1,6 @@
+@model List<(string Service, string Status)>
+<div class="card"><div class="card-header"><h5>Health Check Dashboard</h5></div><div class="card-body">
+<table class="table"><thead><tr><th>Service</th><th>Status</th></tr></thead><tbody>
+@foreach(var i in Model){<tr><td>@i.Service</td><td><span class="badge @(i.Status=="OK"||i.Status=="Running"?"bg-success":"bg-danger")">@i.Status</span></td></tr>}
+<tr><td>Last Report</td><td>@ViewBag.LastReport</td></tr>
+</tbody></table></div></div>
