@@ -1,64 +1,61 @@
 using System.Security.Claims;
 using AspnetCoreMvcFull.Repositories;
+using AspnetCoreMvcFull.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AspnetCoreMvcFull.Controllers;
 
 public class AuthController(UserRepository repo) : Controller
 {
+  [AllowAnonymous]
   public IActionResult ForgotPasswordBasic() => View();
+
+  [AllowAnonymous]
   public IActionResult LoginBasic() => View();
+
+  [AllowAnonymous]
   public IActionResult RegisterBasic() => View();
 
   [HttpPost]
-  public async Task<IActionResult> LoginBasic(
-    string username,
-    string password)
+  [AllowAnonymous]
+  public async Task<IActionResult> LoginBasic(string username, string password)
   {
-    try
+    var user = await repo.GetByUsername(username);
+
+    if (user == null)
     {
-      var user = await repo.GetByUsername(username);
-
-      if (user == null)
-      {
-        ViewBag.Error = "Sai tài khoản";
-
-        return View();
-      }
-
-      if (user.PasswordHash != password)
-      {
-        ViewBag.Error = "Sai mật khẩu";
-
-        return View();
-      }
-
-      var claims = new List<Claim>
-      {
-        new(ClaimTypes.Name, user.Username),
-        new(ClaimTypes.Role, user.RoleName)
-      };
-
-      var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-      var principal = new ClaimsPrincipal(identity);
-
-      await HttpContext
-        .SignInAsync(
-          CookieAuthenticationDefaults
-            .AuthenticationScheme,
-          principal
-        );
-
-      return RedirectToAction("Index","Dashboards");
+      ViewBag.Error = "Sai tài khoản";
+      return View();
     }
-    catch (Exception e)
+
+    if (!user.IsActive)
     {
-      Console.WriteLine(e);
-      ViewBag.Error = e.Message;
-      throw;
+      ViewBag.Error = "Tài khoản đã bị khóa";
+      return View();
     }
+
+    if (!PasswordHasher.Verify(password, user.PasswordHash) && user.PasswordHash != password)
+    {
+      ViewBag.Error = "Sai mật khẩu";
+      return View();
+    }
+
+    var claims = new List<Claim>
+    {
+      new(ClaimTypes.Name, user.Username),
+      new(ClaimTypes.Role, user.RoleName),
+      new("full_name", user.FullName)
+    };
+
+    var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+    var principal = new ClaimsPrincipal(identity);
+
+    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+
+    return RedirectToAction("Index", "Dashboards");
   }
 
   public async Task<IActionResult> Logout()

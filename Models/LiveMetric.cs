@@ -23,5 +23,18 @@
     public decimal ShippingCostRate { get; set; }
 
     public decimal CatseCost { get; set; }
+
+    public DateTime? LastOrderAt { get; set; }
+
+    public decimal EstimatedProfit
+    {
+      get
+      {
+        var actualRevenue = TotalRevenue * (CloseRate / 100) * (DeliveryRate / 100);
+        var importCost = actualRevenue * (ImportCostRate / 100);
+        var shippingCost = actualRevenue * (ShippingCostRate / 100);
+        return actualRevenue - TotalSpend - importCost - shippingCost - CatseCost;
+      }
+    }
   }
 }

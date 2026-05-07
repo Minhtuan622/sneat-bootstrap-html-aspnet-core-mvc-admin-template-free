@@ -1,0 +1,45 @@
+@model AspnetCoreMvcFull.Models.UserFormModel
+@using AspnetCoreMvcFull.Models
+@{
+  var isEdit = Model.Id.HasValue;
+}
+<div class="card">
+  <h5 class="card-header">@(isEdit ? "Cập nhật người dùng" : "Tạo người dùng")</h5>
+  <div class="card-body">
+    <form asp-action="@(isEdit ? "Edit" : "Create")" method="post">
+      @Html.AntiForgeryToken()
+      <input asp-for="Id" type="hidden" />
+      <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+      <div class="mb-3">
+        <label asp-for="Username" class="form-label"></label>
+        <input asp-for="Username" class="form-control" @(isEdit ? "readonly" : "") />
+        <span asp-validation-for="Username" class="text-danger"></span>
+      </div>
+      <div class="mb-3">
+        <label asp-for="FullName" class="form-label"></label>
+        <input asp-for="FullName" class="form-control" />
+        <span asp-validation-for="FullName" class="text-danger"></span>
+      </div>
+      <div class="mb-3">
+        <label asp-for="RoleName" class="form-label">Role</label>
+        <select asp-for="RoleName" class="form-select">
+          @foreach (var role in UserRole.All)
+          {
+            <option value="@role">@role</option>
+          }
+        </select>
+      </div>
+      <div class="mb-3">
+        <label asp-for="Password" class="form-label">@(isEdit ? "Mật khẩu mới (để trống nếu giữ nguyên)" : "Mật khẩu")</label>
+        <input asp-for="Password" class="form-control" type="password" />
+        <span asp-validation-for="Password" class="text-danger"></span>
+      </div>
+      <div class="form-check mb-3">
+        <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+        <label asp-for="IsActive" class="form-check-label">Đang hoạt động</label>
+      </div>
+      <button class="btn btn-primary" type="submit">Lưu</button>
+      <a asp-action="Index" class="btn btn-outline-secondary">Quay lại</a>
+    </form>
+  </div>
+</div>
