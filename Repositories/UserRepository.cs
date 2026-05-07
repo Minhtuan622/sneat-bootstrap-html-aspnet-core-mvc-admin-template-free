@@ -82,6 +82,14 @@ WHERE id = @Id", model);
     await conn.ExecuteAsync("UPDATE users SET password_hash = @passwordHash WHERE id = @id", new { id, passwordHash });
   }
 
+
+  public async Task UpdateProfile(string username, string fullName, string? avatarPath)
+  {
+    await using var conn = GetConnection();
+    await conn.ExecuteAsync(@"UPDATE users SET full_name = @fullName, avatar_path = @avatarPath WHERE username = @username",
+      new { username, fullName, avatarPath });
+  }
+
   public async Task Delete(long id)
   {
     await using var conn = GetConnection();

@@ -47,7 +47,8 @@ public class AuthController(UserRepository repo) : Controller
     {
       new(ClaimTypes.Name, user.Username),
       new(ClaimTypes.Role, user.RoleName),
-      new("full_name", user.FullName)
+      new("full_name", user.FullName),
+      new("avatar_path", user.AvatarPath ?? string.Empty)
     };
 
     var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

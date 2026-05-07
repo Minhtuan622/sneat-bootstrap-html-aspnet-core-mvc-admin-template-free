@@ -1,0 +1,54 @@
+@model AspnetCoreMvcFull.Models.ProfileUserViewModel
+@{
+  ViewData["Title"] = "My Profile";
+  var avatar = string.IsNullOrWhiteSpace(Model.AvatarPath) ? Url.Content("~/img/avatars/1.png") : Model.AvatarPath;
+}
+
+<div class="row">
+  <div class="col-lg-4">
+    <div class="card mb-4">
+      <div class="card-body text-center">
+        <img src="@avatar" class="rounded-circle img-fluid border border-3 border-primary" style="width: 140px; height: 140px; object-fit: cover;" alt="Avatar" />
+        <h5 class="my-3">@Model.FullName</h5>
+        <p class="text-muted mb-1">@Model.RoleName</p>
+        <p class="text-muted mb-4">@@@Model.Username</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-8">
+    <div class="card mb-4">
+      <div class="card-header"><h5 class="mb-0">Cập nhật hồ sơ</h5></div>
+      <div class="card-body">
+        @if (TempData["Success"] != null)
+        {
+          <div class="alert alert-success">@TempData["Success"]</div>
+        }
+        <form asp-action="ProfileUser" method="post" enctype="multipart/form-data" class="row g-3">
+          @Html.AntiForgeryToken()
+          <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+          <div class="col-md-6">
+            <label class="form-label">Username</label>
+            <input value="@Model.Username" class="form-control" disabled />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Vai trò</label>
+            <input value="@Model.RoleName" class="form-control" disabled />
+          </div>
+          <div class="col-12">
+            <label asp-for="FullName" class="form-label">Họ tên</label>
+            <input asp-for="FullName" class="form-control" />
+            <span asp-validation-for="FullName" class="text-danger"></span>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Avatar mới</label>
+            <input type="file" name="avatar" accept=".jpg,.jpeg,.png,.webp" class="form-control" />
+            <small class="text-muted">Khuyến nghị ảnh vuông, tối đa 2MB.</small>
+          </div>
+          <div class="col-12">
+            <button class="btn btn-primary">Lưu thay đổi</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
