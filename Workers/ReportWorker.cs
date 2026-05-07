@@ -3,21 +3,17 @@ using AspnetCoreMvcFull.Services;
 
 namespace AspnetCoreMvcFull.Workers
 {
-  public class ReportWorker(
-    IServiceProvider serviceProvider,
-    ILogger<ReportWorker> logger
-  ) : BackgroundService
+  public class ReportWorker(IServiceProvider serviceProvider) : BackgroundService
   {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
       while (!stoppingToken.IsCancellationRequested)
       {
+        using var scope = serviceProvider.CreateScope();
         try
         {
-          using var scope = serviceProvider.CreateScope();
           var settings = scope.ServiceProvider.GetRequiredService<SystemSettingsRepository>();
           var dispatcher = scope.ServiceProvider.GetRequiredService<ReportService>();
-          var errorLogService = scope.ServiceProvider.GetRequiredService<ErrorLogService>();
 
           var enableWorker = await settings.GetValue("enable_worker");
           if (!string.Equals(enableWorker, "false", StringComparison.OrdinalIgnoreCase))
@@ -31,6 +27,7 @@ namespace AspnetCoreMvcFull.Workers
         }
         catch (Exception ex)
         {
+          var errorLogService = scope.ServiceProvider.GetRequiredService<ErrorLogService>();
           await errorLogService.Log(ex, "ReportWorker.ExecuteAsync");
           await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
         }
