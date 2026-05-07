@@ -4,18 +4,18 @@ using OfficeOpenXml;
 
 namespace AspnetCoreMvcFull.Workers;
 
-public class ImportJobWorker(IServiceProvider serviceProvider, ILogger<ImportJobWorker> logger) : BackgroundService
+public class ImportJobWorker(IServiceProvider serviceProvider) : BackgroundService
 {
+  [Obsolete("Obsolete")]
   protected override async Task ExecuteAsync(CancellationToken stoppingToken)
   {
     while (!stoppingToken.IsCancellationRequested)
     {
+        using var scope = serviceProvider.CreateScope();
       try
       {
-        using var scope = serviceProvider.CreateScope();
         var repo = scope.ServiceProvider.GetRequiredService<ImportJobRepository>();
         var importer = scope.ServiceProvider.GetRequiredService<ExcelImportService>();
-        var errors = scope.ServiceProvider.GetRequiredService<ErrorLogService>();
 
         var job = await repo.GetQueuedJob();
         if (job == null)
@@ -34,7 +34,8 @@ public class ImportJobWorker(IServiceProvider serviceProvider, ILogger<ImportJob
       }
       catch (Exception ex)
       {
-        logger.LogError(ex, "ImportJobWorker Error");
+        var errors = scope.ServiceProvider.GetRequiredService<ErrorLogService>();
+        await errors.Log(ex, "ImportJobWorker Error");
       }
     }
   }
