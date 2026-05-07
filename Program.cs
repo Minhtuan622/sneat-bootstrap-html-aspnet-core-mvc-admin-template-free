@@ -26,6 +26,7 @@ builder.Services.AddScoped<LiveAdRepository>();
 builder.Services.AddScoped<ReportLogRepository>();
 builder.Services.AddScoped<LiveMetricSnapshotRepository>();
 builder.Services.AddScoped<OrdersRepository>();
+builder.Services.AddScoped<ImportJobRepository>();
 builder.Services.AddScoped<AuditRepository>();
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<FacebookAdsService>();
@@ -40,6 +41,7 @@ builder.Services.AddMemoryCache();
 builder.Services.AddHttpClient();
 builder.Services.AddHttpClient<LarkService>();
 builder.Services.AddHostedService<ReportWorker>();
+builder.Services.AddHostedService<AspnetCoreMvcFull.Workers.ImportJobWorker>();
 
 Console.OutputEncoding = Encoding.UTF8;
 builder.Services

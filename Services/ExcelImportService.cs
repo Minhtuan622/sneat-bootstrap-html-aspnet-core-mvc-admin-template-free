@@ -9,11 +9,25 @@ namespace AspnetCoreMvcFull.Services
   {
     public async Task<ImportResult> ImportOrders(IFormFile file)
     {
-      var result = new ImportResult();
-      ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
       using var stream = new MemoryStream();
       await file.CopyToAsync(stream);
-      using var package = new ExcelPackage(stream);
+      return await ImportOrders(stream);
+    }
+
+    public async Task<ImportResult> ImportOrdersFromPath(string filePath)
+    {
+      await using var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+      using var ms = new MemoryStream();
+      await fs.CopyToAsync(ms);
+      return await ImportOrders(ms);
+    }
+
+    private async Task<ImportResult> ImportOrders(Stream input)
+    {
+      var result = new ImportResult();
+      ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+      input.Position = 0;
+      using var package = new ExcelPackage(input);
       var sheet = package.Workbook.Worksheets[0];
       if (sheet.Dimension == null) { result.Errors.Add("File excel rỗng"); return result; }
 
