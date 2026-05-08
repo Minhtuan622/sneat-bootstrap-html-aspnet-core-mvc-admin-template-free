@@ -23,5 +23,6 @@ namespace AspnetCoreMvcFull.Models
     public bool IsActive { get; set; }
 
     public bool IsReporting { get; set; }
+    public string? AdId { get; set; }
   }
 }

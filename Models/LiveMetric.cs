@@ -36,5 +36,16 @@
         return actualRevenue - TotalSpend - importCost - shippingCost - CatseCost;
       }
     }
+
+    public decimal Cpc { get; set; }
+
+    public decimal Cpm { get; set; }
+
+    public long Clicks { get; set; }
+
+    public long Reach { get; set; }
+
+    public long Impressions { get; set; }
+    public string? AdId { get; set; }
   }
 }

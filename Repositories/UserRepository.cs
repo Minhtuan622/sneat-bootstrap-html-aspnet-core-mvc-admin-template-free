@@ -86,7 +86,8 @@ WHERE id = @Id", model);
   public async Task UpdateProfile(string username, string fullName, string? avatarPath)
   {
     await using var conn = GetConnection();
-    await conn.ExecuteAsync(@"UPDATE users SET full_name = @fullName, avatar_path = @avatarPath WHERE username = @username",
+    await conn.ExecuteAsync(
+      @"UPDATE users SET full_name = @fullName, avatar_path = @avatarPath WHERE username = @username",
       new { username, fullName, avatarPath });
   }
 

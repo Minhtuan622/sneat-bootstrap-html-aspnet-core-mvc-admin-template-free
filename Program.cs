@@ -2,13 +2,14 @@ using System.Text;
 using AspnetCoreMvcFull.Repositories;
 using AspnetCoreMvcFull.Services;
 using AspnetCoreMvcFull.Workers;
+using Dapper;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
+DefaultTypeMap.MatchNamesWithUnderscores = true;
 
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
@@ -37,11 +38,14 @@ builder.Services.AddScoped<ReportDispatchService>();
 builder.Services.AddScoped<ReportService>();
 builder.Services.AddScoped<ErrorLogRepository>();
 builder.Services.AddScoped<ErrorLogService>();
+builder.Services.AddScoped<FacebookGraphService>();
+builder.Services.AddScoped<FacebookAdInsightRepository>();
 builder.Services.AddMemoryCache();
 builder.Services.AddHttpClient();
 builder.Services.AddHttpClient<LarkService>();
 builder.Services.AddHostedService<ReportWorker>();
-builder.Services.AddHostedService<AspnetCoreMvcFull.Workers.ImportJobWorker>();
+builder.Services.AddHostedService<ImportJobWorker>();
+builder.Services.AddHostedService<FacebookSyncWorker>();
 
 Console.OutputEncoding = Encoding.UTF8;
 builder.Services

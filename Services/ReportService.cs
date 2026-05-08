@@ -1,6 +1,7 @@
 using AspnetCoreMvcFull.Models;
 using AspnetCoreMvcFull.Repositories;
 using Microsoft.Extensions.Caching.Memory;
+using System.Diagnostics;
 
 namespace AspnetCoreMvcFull.Services;
 
@@ -21,6 +22,7 @@ public class ReportService(
     {
       if (await SendReport(item)) sent++;
     }
+
     return sent;
   }
 
@@ -42,22 +44,63 @@ public class ReportService(
 
   private async Task<bool> SendReport(LiveMetric item)
   {
+    var stopwatch = Stopwatch.StartNew();
     var message = builder.Build(item);
+
     try
     {
       var latest = await snapshotRepo.GetLatest(item.Id);
-      var changed = latest == null || latest.TotalRevenue != item.TotalRevenue || latest.TotalSpend != item.TotalSpend || latest.Profit != item.EstimatedProfit;
+
+      var changed =
+        latest == null
+        || latest.TotalRevenue != item.TotalRevenue
+        || latest.TotalSpend != item.TotalSpend
+        || latest.Profit != item.EstimatedProfit;
+
       if (!changed) return false;
 
       await lark.Send(message);
-      await reportLogRepo.Create(new ReportLog { LiveConfigId = item.Id, Message = message, IsSuccess = true });
-      await snapshotRepo.Create(new LiveMetricSnapshot { LiveConfigId = item.Id, TotalRevenue = item.TotalRevenue, TotalSpend = item.TotalSpend, Profit = item.EstimatedProfit });
+
+      stopwatch.Stop();
+
+      await reportLogRepo.Create(
+        new ReportLog
+        {
+          LiveConfigId = item.Id,
+          Message = message,
+          IsSuccess = true,
+          DurationMs = (int)stopwatch.ElapsedMilliseconds
+        }
+      );
+
+      await snapshotRepo.Create(
+        new LiveMetricSnapshot
+        {
+          LiveConfigId = item.Id,
+          TotalRevenue = item.TotalRevenue,
+          TotalSpend = item.TotalSpend,
+          Profit = item.EstimatedProfit
+        }
+      );
+
       cache.Set("health_last_report", DateTime.UtcNow, TimeSpan.FromHours(2));
       return true;
     }
     catch (Exception ex)
     {
-      await reportLogRepo.Create(new ReportLog { LiveConfigId = item.Id, Message = message, IsSuccess = false, ErrorMessage = ex.Message });
+      stopwatch.Stop();
+
+      await reportLogRepo.Create(
+        new ReportLog
+        {
+          LiveConfigId = item.Id,
+          Message = message,
+          IsSuccess = false,
+          ErrorMessage = ex.Message,
+          DurationMs = (int)stopwatch.ElapsedMilliseconds
+        }
+      );
+
       await errorLogService.Log(ex, "ReportService.SendReport");
       return false;
     }

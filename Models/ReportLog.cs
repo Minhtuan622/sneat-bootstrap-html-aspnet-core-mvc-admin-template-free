@@ -12,6 +12,8 @@
 
     public string? ErrorMessage { get; set; }
 
+    public int DurationMs { get; set; }
+
     public DateTime CreatedAt { get; set; }
   }
 }

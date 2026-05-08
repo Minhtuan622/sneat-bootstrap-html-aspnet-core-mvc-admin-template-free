@@ -6,49 +6,42 @@ namespace AspnetCoreMvcFull.Repositories
 {
   public class ReportLogRepository(IConfiguration config)
   {
-    private SqlConnection GetConnection()
-    {
-      return new SqlConnection(config.GetConnectionString("DefaultConnection"));
-    }
+    private readonly string _connectionString = config.GetConnectionString("DefaultConnection")!;
 
-    public async Task<IEnumerable<ReportLog>>GetAll()
+    public async Task<IEnumerable<ReportLog>> GetAll()
     {
-      await using var conn = GetConnection();
+      await using var connection = new SqlConnection(_connectionString);
 
-      return await conn.QueryAsync<ReportLog>(
+      return await connection.QueryAsync<ReportLog>(
         """
-        SELECT
-            id AS Id,
-            live_config_id AS LiveConfigId,
-            message AS Message,
-            is_success AS IsSuccess,
-            error_message AS ErrorMessage,
-            created_at AS CreatedAt
+        SELECT TOP 200 *
         FROM report_logs
-        ORDER BY id DESC
+        ORDER BY created_at DESC
         """
       );
     }
 
     public async Task Create(ReportLog model)
     {
-      await using var conn = GetConnection();
+      await using var connection = new SqlConnection(_connectionString);
 
-      await conn.ExecuteAsync(
+      await connection.ExecuteAsync(
         """
         INSERT INTO report_logs
         (
             live_config_id,
             message,
             is_success,
-            error_message
+            error_message,
+            duration_ms
         )
         VALUES
         (
             @LiveConfigId,
             @Message,
             @IsSuccess,
-            @ErrorMessage
+            @ErrorMessage,
+            @DurationMs
         )
         """,
         model

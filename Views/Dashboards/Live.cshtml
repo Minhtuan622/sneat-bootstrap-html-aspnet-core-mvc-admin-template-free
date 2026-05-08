@@ -36,7 +36,19 @@
     <div class="table-responsive text-nowrap">
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light">
-                <tr><th>Project</th><th>Post ID</th><th>Revenue</th><th>Spend</th><th>Profit</th><th>Status</th></tr>
+            <tr>
+              <th>Project</th>
+              <th>Post ID</th>
+              <th>Revenue</th>
+              <th>Spend</th>
+              <th>Profit</th>
+              <th>Status</th>
+              <th>Spend</th>
+              <th>CPC</th>
+              <th>CPM</th>
+              <th>Clicks</th>
+              <th>Reach</th>
+            </tr>
             </thead>
             <tbody class="table-border-bottom-0">
             @foreach(var item in Model)
@@ -52,6 +64,11 @@
                         @if (isProfit){<span class="badge bg-label-success">+@($"{profit:N0} đ")</span>}else{<span class="badge bg-label-danger">@($"{profit:N0} đ")</span>}
                     </td>
                     <td>@if (isProfit){<span class="badge bg-success">PROFIT</span>}else{<span class="badge bg-danger">LOSS</span>}</td>
+                    <td>@item.TotalSpend.ToString("N0")</td>
+                    <td>@item.Cpc.ToString("N0")</td>
+                    <td>@item.Cpm.ToString("N0")</td>
+                    <td>@item.Clicks</td>
+                    <td>@item.Reach</td>
                 </tr>
             }
             </tbody>
