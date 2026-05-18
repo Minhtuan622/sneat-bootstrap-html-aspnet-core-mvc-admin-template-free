@@ -1,5 +1,6 @@
 using AspnetCoreMvcFull.Repositories;
 using AspnetCoreMvcFull.Services;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace AspnetCoreMvcFull.Workers
 {
@@ -18,6 +19,13 @@ namespace AspnetCoreMvcFull.Workers
           var enableWorker = await settings.GetValue("enable_worker");
           if (!string.Equals(enableWorker, "false", StringComparison.OrdinalIgnoreCase))
           {
+            var cache = scope.ServiceProvider.GetRequiredService<IMemoryCache>();
+
+            cache.Set(
+              "worker_last_run",
+              DateTime.UtcNow,
+              TimeSpan.FromHours(1)
+            );
             await dispatcher.SendAllReports();
           }
 

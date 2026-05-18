@@ -1,3 +1,4 @@
+using AspnetCoreMvcFull.Constants;
 using AspnetCoreMvcFull.Models;
 using AspnetCoreMvcFull.Repositories;
 using Microsoft.AspNetCore.Authorization;
@@ -6,9 +7,10 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace AspnetCoreMvcFull.Controllers;
 
-[Authorize]
+[Authorize(Roles = Roles.Admin)]
 public class DashboardsController(
   LiveMetricsRepository repo,
+  LiveMetricSnapshotRepository snapshotRepo,
   IMemoryCache cache
 ) : Controller
 {
@@ -25,5 +27,12 @@ public class DashboardsController(
     }) ?? [];
     ViewBag.Filter = filter;
     return View(data);
+  }
+
+  public async Task<IActionResult> Trend(long id)
+  {
+    var data = await snapshotRepo.GetByConfig(id);
+
+    return Json(data);
   }
 }

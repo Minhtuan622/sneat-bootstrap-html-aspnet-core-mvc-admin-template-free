@@ -1,33 +1,112 @@
 using AspnetCoreMvcFull.Repositories;
-using AspnetCoreMvcFull.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace AspnetCoreMvcFull.Controllers;
 
-[Authorize(Roles = "Admin")]
-public class HealthController(IConfiguration config, LarkService larkService, SystemSettingsRepository settings, IMemoryCache cache) : Controller
+[Authorize]
+public class HealthController(
+  IConfiguration config,
+  SystemSettingsRepository settings,
+  IMemoryCache cache)
+  : Controller
 {
   public async Task<IActionResult> Index()
   {
-    var items = new List<(string Service, string Status)>();
-    items.Add(("SQL Server", await CheckSql(config.GetConnectionString("DefaultConnection")!) ? "OK" : "FAIL"));
-    items.Add(("Lark Webhook", await CheckLark(larkService) ? "OK" : "FAIL"));
+    var items = new List<(string Service, string Status)>
+    {
+      (
+        "SQL Server",
+        await CheckSql(
+          config.GetConnectionString("DefaultConnection")!
+        )
+          ? "OK"
+          : "FAIL"
+      ),
+
+      (
+        "Lark Webhook",
+        CheckLark(config)
+          ? "OK"
+          : "FAIL"
+      )
+    };
+
+    // Worker enable/disable status
     var enableWorker = await settings.GetValue("enable_worker");
-    items.Add(("Worker", string.Equals(enableWorker, "false", StringComparison.OrdinalIgnoreCase) ? "Stopped" : "Running"));
-    var lastReport = cache.TryGetValue<DateTime>("health_last_report", out var ts) ? $"{(int)(DateTime.UtcNow-ts).TotalMinutes} phút trước" : "N/A";
+
+    items.Add(
+      (
+        "Worker Config",
+        string.Equals(
+          enableWorker,
+          "false",
+          StringComparison.OrdinalIgnoreCase
+        )
+          ? "Stopped"
+          : "Running"
+      )
+    );
+
+    // Last report time
+    var lastReport =
+      cache.TryGetValue<DateTime>(
+        "health_last_report",
+        out var reportTs
+      )
+        ? $"{(int)(DateTime.UtcNow - reportTs).TotalMinutes} phút trước"
+        : "N/A";
+
+    // Last worker execution time
+    var lastWorkerRun =
+      cache.TryGetValue<DateTime>(
+        "worker_last_run",
+        out var workerTs
+      )
+        ? $"{(int)(DateTime.UtcNow - workerTs).TotalMinutes} phút trước"
+        : "N/A";
+
+    // Worker runtime status
+    var workerStatus = "Running";
+
+    if (
+      workerTs != default &&
+      (DateTime.UtcNow - workerTs).TotalMinutes > 10
+    )
+    {
+      workerStatus = "STALE";
+    }
+
+    items.Add(("Worker Health", workerStatus));
+
     ViewBag.LastReport = lastReport;
+    ViewBag.LastWorkerRun = lastWorkerRun;
+
     return View(items);
   }
 
-  private static async Task<bool> CheckSql(string conn)
+  private static async Task<bool> CheckSql(string connectionString)
   {
-    try { await using var c = new Microsoft.Data.SqlClient.SqlConnection(conn); await c.OpenAsync(); return true; } catch { return false; }
+    try
+    {
+      await using var connection = new SqlConnection(connectionString);
+
+      await connection.OpenAsync();
+
+      return true;
+    }
+    catch
+    {
+      return false;
+    }
   }
 
-  private static async Task<bool> CheckLark(LarkService lark)
+  private static bool CheckLark(IConfiguration config)
   {
-    try { await lark.Send("[health-check] ping"); return true; } catch { return false; }
+    return !string.IsNullOrWhiteSpace(
+      config["Lark:Webhook"]
+    );
   }
 }

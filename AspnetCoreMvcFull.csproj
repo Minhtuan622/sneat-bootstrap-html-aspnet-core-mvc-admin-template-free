@@ -11,5 +11,6 @@
     <PackageReference Include="EPPlus" Version="8.5.4" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.1" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.12" />
+    <PackageReference Include="Polly" Version="8.6.6" />
   </ItemGroup>
 </Project>

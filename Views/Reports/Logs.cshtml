@@ -30,6 +30,8 @@
         <th>Live Config ID</th>
         <th>Status</th>
         <th>Error Message</th>
+        <th>Duration</th>
+        <th>Created</th>
       </tr>
       </thead>
       <tbody class="table-border-bottom-0">
@@ -75,6 +77,12 @@
                 @item.ErrorMessage
               </span>
             }
+          </td>
+          <td>
+            @item.DurationMs ms
+          </td>
+          <td>
+            @item.CreatedAt
           </td>
         </tr>
       }

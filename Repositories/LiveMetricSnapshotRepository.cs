@@ -56,5 +56,20 @@ namespace AspnetCoreMvcFull.Repositories
         model
       );
     }
+
+    public async Task<IEnumerable<LiveMetricSnapshot>> GetByConfig(long liveConfigId)
+    {
+      await using var connection = GetConnection();
+
+      return await connection.QueryAsync<LiveMetricSnapshot>(
+        """
+        SELECT TOP 30 *
+        FROM live_metric_snapshots
+        WHERE live_config_id = @liveConfigId
+        ORDER BY created_at ASC
+        """,
+        new { liveConfigId }
+      );
+    }
   }
 }

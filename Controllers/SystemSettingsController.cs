@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AspnetCoreMvcFull.Controllers;
 
-[Authorize(Roles = "Admin")]
+[Authorize]
 public class SystemSettingsController(SystemSettingsRepository repo) : Controller
 {
   public async Task<IActionResult> Index()

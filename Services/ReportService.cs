@@ -47,6 +47,13 @@ public class ReportService(
     var stopwatch = Stopwatch.StartNew();
     var message = builder.Build(item);
 
+    var cacheKey = $"report_lock_{item.Id}";
+
+    if (cache.TryGetValue(cacheKey, out _))
+    {
+      return false;
+    }
+
     try
     {
       var latest = await snapshotRepo.GetLatest(item.Id);
@@ -60,6 +67,8 @@ public class ReportService(
       if (!changed) return false;
 
       await lark.Send(message);
+
+      cache.Set(cacheKey, true, TimeSpan.FromMinutes(1));
 
       stopwatch.Stop();
 
