@@ -27,7 +27,8 @@ namespace AspnetCoreMvcFull.Services
     public async Task Send(string message)
     {
       var webhook = await settingsRepository.GetValue("lark_webhook") ?? config["Lark:Webhook"];
-      var secret = await settingsRepository.GetValue("lark_secret") ?? config["Lark:Secret"];
+      // Optional: only used when Lark bot has "Signature verification" enabled.
+      var secret = await settingsRepository.GetValue("lark_secret");
 
       if (string.IsNullOrWhiteSpace(webhook))
       {
