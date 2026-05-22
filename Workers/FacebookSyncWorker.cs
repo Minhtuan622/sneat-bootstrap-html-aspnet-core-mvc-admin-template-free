@@ -49,6 +49,10 @@ public class FacebookSyncWorker(
           logger.LogInformation("FACEBOOK SYNC DONE");
         }
       }
+      catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+      {
+        break;
+      }
       catch (Exception ex)
       {
         logger.LogError(ex, "FACEBOOK SYNC ERROR");
