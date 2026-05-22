@@ -32,6 +32,10 @@ public class ImportJobWorker(IServiceProvider serviceProvider) : BackgroundServi
         var result = await importer.ImportOrdersFromPath(job.FilePath);
         await repo.Complete(job.Id, result.SuccessCount, result.FailedCount);
       }
+      catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+      {
+        break;
+      }
       catch (Exception ex)
       {
         var errors = scope.ServiceProvider.GetRequiredService<ErrorLogService>();

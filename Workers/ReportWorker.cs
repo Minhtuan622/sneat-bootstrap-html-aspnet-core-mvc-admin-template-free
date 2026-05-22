@@ -33,11 +33,15 @@ namespace AspnetCoreMvcFull.Workers
           var interval = int.TryParse(intervalText, out var m) ? m : 5;
           await Task.Delay(TimeSpan.FromMinutes(interval), stoppingToken);
         }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
+          break;
+        }
         catch (Exception ex)
         {
           var errorLogService = scope.ServiceProvider.GetRequiredService<ErrorLogService>();
           await errorLogService.Log(ex, "ReportWorker.ExecuteAsync");
-          await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
+          await Task.Delay(TimeSpan.FromMinutes(5), CancellationToken.None);
         }
       }
     }
