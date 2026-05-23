@@ -64,7 +64,21 @@ public class ReportService(
         || latest.TotalSpend != item.TotalSpend
         || latest.Profit != item.EstimatedProfit;
 
-      if (!changed) return false;
+      if (!changed)
+      {
+        await reportLogRepo.Create(
+          new ReportLog
+          {
+            LiveConfigId = item.Id,
+            Message = message,
+            IsSuccess = true,
+            ErrorMessage = "Skip report: metrics unchanged",
+            DurationMs = (int)stopwatch.ElapsedMilliseconds
+          }
+        );
+
+        return false;
+      }
 
       await lark.Send(message);
 

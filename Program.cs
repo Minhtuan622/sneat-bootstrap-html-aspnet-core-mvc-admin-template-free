@@ -6,6 +6,9 @@ using Dapper;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using OfficeOpenXml;
+
+ExcelPackage.License.SetNonCommercialPersonal("dotienich");
 
 var builder = WebApplication.CreateBuilder(args);
 
